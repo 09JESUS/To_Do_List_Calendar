@@ -1,0 +1,12 @@
+{
+    "builds": [
+    {
+        "src": "api/app.py",
+        "use": "@vercel/python"
+    },
+    {
+        "src": "frontend/vercel.json",
+        "use": "@vercel/static-build"
+    }
+    ]
+}
