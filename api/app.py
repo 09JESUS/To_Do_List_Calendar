@@ -259,5 +259,7 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('home'))
 
+# Serverless setup
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.wsgi_app = DispatcherMiddleware(app.wsgi_app)
+    run_simple('0.0.0.0', 5000, app)
