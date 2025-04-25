@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Calendar & Tasks</title>
+    <style>
+      /* Root Colors */
+      /* Root Colors */
+      :root {
+        --primary-color: #6c63ff;
+        --accent-color: #e63946;
+        --light-bg: #f1faee;
+        --dark-bg: #2e2e2e;
+        --button-color: #a8dadc;
+      }
+
+      /* Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--light-bg);
+        color: var(--primary-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      body.dark-mode {
+        background-color: var(--dark-bg);
+        color: #fff;
+      }
+      .success-container {
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 20px 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        max-width: 400px;
+        z-index: 1000;
+        animation: pop 0.4s ease;
+      }
+
+      @keyframes pop {
+        0% {
+          transform: scale(0.5) translateX(-50%);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) translateX(-50%);
+          opacity: 1;
+        }
+      }
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 230px;
+        height: 100vh;
+        background-color: var(--primary-color);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar h2 {
+        color: white;
+        margin-bottom: 20px;
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      .sidebar a:hover,
+      .sidebar a.active {
+        background-color: var(--accent-color);
+      }
+
+      /* Content */
+      .content {
+        margin-left: 250px;
+        padding: 30px;
+      }
+
+      .profile-pic {
+        border-radius: 50%;
+        margin-top: 10px;
+      }
+
+      #current-time {
+        margin-top: 10px;
+        font-size: 1.2rem;
+      }
+
+      /* Containers */
+      .container {
+        background: var(--light-bg);
+        border-radius: 10px;
+        margin-top: 20px;
+        padding: 20px;
+        display: none;
+      }
+
+      .profile-container,
+      .settings-container {
+        display: block; /* Make the profile container visible by default */
+      }
+
+      /* Calendar Grid */
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        margin-top: 30px;
+      }
+
+      /* Calendar Day Cells */
+      .calendar div {
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        color: var(--text-color);
+      }
+
+      /* Hover Effect */
+      .calendar div:hover {
+        background: var(--button-color);
+        color: white;
+      }
+
+      /* Today Highlight */
+      .calendar .today {
+        background: var(--accent-color);
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+      }
+
+      /* Dark Mode Styles */
+      [data-theme="dark"] .calendar div {
+        background: #1e1e1e;
+        box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .calendar .today {
+        background: var(--accent-color);
+        color: #fff;
+        border: 2px solid #66ccff;
+        box-shadow: 0 0 10px rgba(102, 204, 255, 0.6);
+      }
+
+      /* Task List Styles */
+      .to-do-list {
+        margin-top: 30px;
+        background: var(--light-bg);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+      }
+
+      .task-input-container {
+        display: grid;
+        gap: 15px;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .task-input,
+      .task-textarea {
+        padding: 15px;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+
+      .task-input:focus,
+      .task-textarea:focus {
+        border-color: var(--primary-color);
+      }
+
+      .task-textarea {
+        grid-column: span 2;
+        min-height: 100px;
+      }
+
+      .add-task-btn {
+        background-color: var(--accent-color);
+        color: white;
+        font-size: 1.1rem;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        grid-column: span 2;
+      }
+
+      .add-task-btn:hover {
+        background-color: var(--primary-color);
+        transform: scale(1.05);
+      }
+
+      .add-task-btn:active {
+        transform: scale(0.98);
+      }
+
+      .task-list {
+        list-style: none;
+        margin-top: 20px;
+        padding: 0;
+      }
+
+      .task-list li {
+        background: #fff;
+        margin-bottom: 15px;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      .task-list li:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .task-list li .task-info {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+      }
+
+      .task-list li .task-info p {
+        margin-bottom: 5px;
+        font-size: 1rem;
+      }
+
+      .task-list li.completed {
+        background: #e9f7e9;
+        text-decoration: line-through;
+      }
+
+      .task-list li button {
+        background: var(--accent-color);
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .task-list li button:hover {
+        background: var(--primary-color);
+      }
+
+      .task-list li button:active {
+        transform: scale(0.95);
+      }
+
+      .task-list li button.complete-btn {
+        background-color: #4caf50;
+      }
+
+      .task-list li button.delete-btn {
+        background-color: #f44336;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .modal-content button {
+        margin: 10px;
+        padding: 10px 20px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      /* Notifications */
+      .notification {
+        margin-top: 20px;
+        padding: 15px;
+        background: var(--accent-color);
+        color: white;
+        border-radius: 5px;
+        display: none;
+      }
+
+      /* Dark Mode Button */
+      #mode-toggle {
+        margin-top: 20px;
+        padding: 10px;
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      footer {
+        background: #002244;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9rem;
+      }
+
+      .footer-links a {
+        color: #ccc;
+        margin: 0 10px;
+        text-decoration: none;
+      }
+
+      .footer-links a:hover {
+        color: #fff;
+      }
+      .profile-container {
+        text-align: center;
+        background-color: #f4f7fb;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 600px;
+        margin: 20px auto;
+      }
+
+      .welcome-message {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .user-name {
+        color: #3498db;
+        font-style: italic;
+      }
+
+      .user-email {
+        font-size: 1.2rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+      }
+
+      .user-email span {
+        font-weight: bold;
+      }
+
+      .profile-image {
+        margin-top: 15px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3px solid #3498db;
+      }
+
+      .profile-pic {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      .current-time {
+        font-size: 1.5rem;
+        margin-top: 20px;
+        color: #e74c3c;
+      }
+      /* Testimonial Icon */
+      .testimonial-icon {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #0d6efd;
+        color: white;
+        font-size: 2rem;
+        padding: 15px;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+        transition: transform 0.2s ease;
+      }
+
+      .testimonial-icon:hover {
+        transform: scale(1.1);
+      }
+
+      /* Testimonial Modal */
+      .testimonial-modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      /* Modal Content */
+      .testimonial-modal-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Close Button */
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #888;
+      }
+
+      .close-btn:hover {
+        color: #000;
+      }
+
+      /* Form Elements */
+      .testimonial-modal-content h2 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        text-align: center;
+        color: #333;
+      }
+
+      .testimonial-modal-content label {
+        display: block;
+        margin-top: 1rem;
+        font-weight: bold;
+        color: #444;
+      }
+
+      .testimonial-modal-content input,
+      .testimonial-modal-content select,
+      .testimonial-modal-content textarea {
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .testimonial-modal-content input:focus,
+      .testimonial-modal-content select:focus,
+      .testimonial-modal-content textarea:focus {
+        border-color: #0057ff;
+        outline: none;
+      }
+
+      /* Submit Button */
+      .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 1.5rem;
+        background-color: #0057ff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .submit-btn:hover {
+        background-color: #003fcc;
+      }
+
+      /* Fade-in Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Close Button */
+      .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #888;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          justify-content: center;
+        }
+        .box {
+          flex: 1 1 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <img src="/static/images/todo-icon.png" alt="Logo" />
+      <h2>Dashboard</h2>
+      <a href="#" class="active">Dashboard</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#tasks">Tasks</a>
+
+      <a href="#logout" onclick="confirmLogout()">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <div class="profile-container">
+        <h1 class="welcome-message">
+          Welcome, <span class="user-name">{{ user.first_name }}</span>!
+        </h1>
+        <div class="profile-details">
+          <p class="user-email">Email: <span>{{ user.email }}</span></p>
+          <!-- Profile Image -->
+          <div class="profile-image"></div>
+        </div>
+        <h2 class="current-time" id="current-time"></h2>
+      </div>
+      <!-- Calendar -->
+      <div id="calendar">
+        <h3>Calendar</h3>
+        <div class="calendar" id="calendar-days"></div>
+      </div>
+      <!-- Testimonial Icon -->
+      <div
+        class="testimonial-icon"
+        onclick="openTestimonialForm()"
+        title="Write a Testimonial"
+      >
+        💬
+      </div>
+
+      <<!-- Testimonial Modal -->
+      <div class="testimonial-modal">
+        <div class="testimonial-modal-content">
+          <span class="close-btn" onclick="closeTestimonialModal()"
+            >&times;</span
+          >
+          <h2>Submit Your Testimonial</h2>
+
+          <!-- Testimonial Form -->
+          <form action="{{ url_for('submit_testimonial') }}" method="POST">
+            <!-- CSRF Token (optional if using Flask-WTF) -->
+
+            <!-- Testimonial Text -->
+            <label for="testimonial-text">Your Feedback</label>
+            <textarea
+              id="testimonial-text"
+              name="testimonial"
+              placeholder="Share your experience"
+              required
+            ></textarea>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <div id="tasks" class="to-do-list">
+        <h3>Your Tasks</h3>
+        <div class="task-input-container">
+          <input
+            type="text"
+            id="task-name"
+            placeholder="Enter Task Name"
+            class="task-input"
+          />
+          <input type="datetime-local" id="due-date" class="task-input" />
+          <select id="priority" class="task-input">
+            <option value="low">Low Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+          <textarea
+            id="task-desc"
+            placeholder="Task Description"
+            class="task-textarea"
+          ></textarea>
+          <button
+            onclick="addTask()"
+            onclick="clearForm()"
+            class="add-task-btn"
+          >
+            Add Task
+          </button>
+        </div>
+        <ul id="task-list" class="task-list">
+          {% for task in tasks %}
+          <li class="task-item">
+            <h4>{{ task.name }}</h4>
+            <p>{{ task.task_description }}</p>
+            <small>Due: {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}</small
+            ><br />
+            <small>Status: {{ task.status }}</small>
+
+            {% if task.status != 'completed' %}
+            <form
+              class="mark-done-form"
+              action="{{ url_for('update_task_status') }}"
+              method="POST"
+              style="margin-top: 10px"
+            >
+              <input type="hidden" name="task_id" value="{{ task.id }}" />
+              <input type="hidden" name="status" value="completed" />
+              <button type="submit" class="mark-done-btn">Mark as Done</button>
+            </form>
+
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div
+        id="task-success-popup"
+        class="success-container"
+        style="display: none"
+      >
+        <h1>🎉 Task Completed!</h1>
+        <p>Well done! You’ve successfully completed your task.</p>
+      </div>
+
+      <!-- Logout Modal -->
+      <div id="logout-modal" class="modal">
+        <div class="modal-content">
+          <p>Are you sure you want to log out?</p>
+          <button onclick="logout()">Yes</button>
+          <button onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Dark Mode Button -->
+      <button id="mode-toggle" onclick="toggleDarkMode()">
+        Toggle Dark Mode
+      </button>
+    </div>
+    <!-- Footer Section -->
+    <footer>
+      <div class="footer-content">
+        <p>&copy; 2025 FSolution.-Dev | Forget Nukeri. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#" id="contactLink">Contact</a>
+        </div>
+      </div>
+    </footer>
+    <!-- Script Section -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+      function clearForm() {
+        document.getElementById("taskForm").reset(); // Reset the form inputs
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        const forms = document.querySelectorAll(".mark-done-form");
+
+        forms.forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch("/update_task_status", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (response.ok) {
+              // Show success popup
+              const popup = document.getElementById("task-success-popup");
+              popup.style.display = "block";
+
+              // Confetti!
+              confetti({
+                particleCount: 100,
+                spread: 60,
+                origin: { y: 0.6 },
+              });
+
+              // Remove task visually
+              form.closest(".task-item").remove();
+
+              // Hide popup after 5s
+              setTimeout(() => {
+                popup.style.display = "none";
+              }, 5000);
+            }
+          });
+        });
+      });
+      // Update Current Time
+      function updateTime() {
+        document.getElementById("current-time").textContent =
+          new Date().toLocaleString();
+      }
+      setInterval(updateTime, 1000);
+
+      // Build Calendar
+      function buildCalendar() {
+        const calendar = document.getElementById("calendar-days");
+        calendar.innerHTML = "";
+        const now = new Date();
+        const daysInMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        ).getDate();
+        for (let i = 1; i <= daysInMonth; i++) {
+          const day = document.createElement("div");
+          day.innerText = i;
+          if (i === now.getDate()) {
+            day.classList.add("today");
+          }
+          calendar.appendChild(day);
+        }
+      }
+      buildCalendar();
+
+      // Dark Mode
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem(
+          "dark-mode",
+          document.body.classList.contains("dark-mode")
+        );
+      }
+      if (localStorage.getItem("dark-mode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      // Logout Modal
+      function confirmLogout() {
+        document.getElementById("logout-modal").style.display = "flex";
+      }
+      function closeModal() {
+        document.getElementById("logout-modal").style.display = "none";
+      }
+      function logout() {
+        closeModal();
+        window.location.href = "/";
+      }
+
+      function addTask() {
+        const name = document.getElementById("task-name").value;
+        const dueDate = document.getElementById("due-date").value;
+        const priority = document.getElementById("priority").value;
+        const desc = document.getElementById("task-desc").value;
+
+        fetch("/add_task", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            due_date: dueDate,
+            priority,
+            description: desc,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              appendTaskToList({
+                name,
+                due_date: dueDate,
+                priority,
+                description: desc,
+                status: "pending",
+              });
+            } else {
+              alert(data.message);
+            }
+          });
+      }
+
+      function appendTaskToList(task) {
+        const taskList = document.getElementById("task-list");
+        const li = document.createElement("li");
+        li.className = "task-item";
+        li.innerHTML = `
+          <strong>${task.name}</strong><br>
+          Priority: ${task.priority}<br>
+          Due: <span class="due-time">${new Date(
+            task.due_date
+          ).toLocaleString()}</span><br>
+          <span class="time-remaining"></span><br>
+          <button onclick="markDone(this)">Mark as Done</button>
+        `;
+        li.dataset.dueDate = task.due_date;
+        taskList.appendChild(li);
+      }
+
+      // Countdown timer updater
+      setInterval(() => {
+        const taskItems = document.querySelectorAll(".task-item");
+        const now = new Date();
+        taskItems.forEach((item) => {
+          const dueDate = new Date(item.dataset.dueDate);
+          const remaining = dueDate - now;
+          const timeElem = item.querySelector(".time-remaining");
+
+          if (remaining > 0) {
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            timeElem.textContent = `Time remaining: ${minutes}m ${seconds}s`;
+          } else {
+            timeElem.textContent = "Missed Due Date";
+            // Optional: make sure it’s updated in DB
+            if (!item.classList.contains("missed")) {
+              markAsMissed(item);
+              item.classList.add("missed");
+            }
+          }
+        });
+      }, 1000);
+
+      function markAsMissed(item) {
+        fetch("/update_task_status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: item.querySelector("strong").textContent,
+            status: "missed",
+          }),
+        });
+      }
+
+      function markDone(btn) {
+        const item = btn.closest(".task-item");
+        fetch("/update_task_status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: item.querySelector("strong").textContent,
+            status: "completed",
+          }),
+        }).then(() => {
+          item.classList.add("completed");
+          item.querySelector(".time-remaining").textContent =
+            "Status: Completed";
+        });
+      }
+
+      // Select the testimonial icon and modal
+      const testimonialIcon = document.querySelector(".testimonial-icon");
+      const testimonialModal = document.querySelector(".testimonial-modal");
+      const closeModalBtn = document.querySelector(".close-btn");
+      const testimonialForm = document.getElementById("testimonialForm");
+
+      // Open modal when the testimonial icon is clicked
+      testimonialIcon.addEventListener("click", () => {
+        testimonialModal.style.display = "flex"; // Show the modal
+      });
+
+      // Close modal when the close button is clicked
+      closeModalBtn.addEventListener("click", () => {
+        testimonialModal.style.display = "none"; // Hide the modal
+      });
+
+      // Close the modal if the background is clicked
+      testimonialModal.addEventListener("click", (event) => {
+        if (event.target === testimonialModal) {
+          testimonialModal.style.display = "none"; // Hide the modal
+        }
+      });
+
+      // Optional toggle function
+      function toggleTestimonialModal() {
+        const modal = document.getElementById("testimonialModal");
+        if (modal.style.display === "none" || modal.style.display === "") {
+          modal.style.display = "flex";
+        } else {
+          modal.style.display = "none";
+        }
+      }
+
+      // Submit testimonial form
+      testimonialForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Get form values
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const message = document.getElementById("message").value.trim();
+
+        // Send data to backend
+        try {
+          const response = await fetch("/api/testimonials", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, message }),
+          });
+
+          if (response.ok) {
+            alert("Thank you for your feedback!");
+            testimonialForm.reset();
+            testimonialModal.style.display = "none";
+          } else {
+            alert("Something went wrong. Please try again later.");
+          }
+        } catch (error) {
+          console.error("Error submitting testimonial:", error);
+          alert("An error occurred. Please try again.");
+        }
+      });
+    </script>
+  </body>
+</html>

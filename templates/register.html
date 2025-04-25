@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - To-Do List Calendar</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(to right, #74ebd5, #acb6e5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        transition: background 0.5s ease;
+      }
+      .dark-mode {
+        background: #1e1e1e;
+      }
+      .register-container {
+        background: white;
+        padding: 30px 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        transition: background 0.5s ease, color 0.5s ease;
+      }
+      .dark-mode .register-container {
+        background: #2c2c2c;
+        color: #eee;
+      }
+      h2 {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      .dark-mode h2 {
+        color: #fff;
+      }
+      .motivation {
+        font-size: 14px;
+        margin-bottom: 20px;
+        color: #666;
+      }
+      .dark-mode .motivation {
+        color: #ccc;
+      }
+      form input,
+      form button {
+        width: 100%;
+        padding: 10px 14px;
+        margin: 8px 0;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      form input {
+        border: 1px solid #ccc;
+        transition: border 0.3s ease;
+      }
+      form input:focus {
+        border-color: #6c63ff;
+        outline: none;
+      }
+      button {
+        border: none;
+        background: #6c63ff;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      button:hover {
+        background: #5952db;
+      }
+      .back-btn {
+        background: transparent;
+        color: #6c63ff;
+        border: 2px solid #6c63ff;
+        margin-top: 10px;
+      }
+      .back-btn:hover {
+        background: #6c63ff;
+        color: white;
+      }
+      .toggle-btn {
+        background: transparent;
+        color: #333;
+        border: 2px solid #333;
+        margin-top: 10px;
+      }
+      .dark-mode .toggle-btn {
+        color: #eee;
+        border-color: #eee;
+      }
+      .toggle-btn:hover {
+        background: #333;
+        color: white;
+      }
+      a {
+        color: #6c63ff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .password-hint {
+        font-size: 12px;
+        text-align: left;
+        color: #555;
+        margin-top: 4px;
+      }
+      .dark-mode .password-hint {
+        color: #bbb;
+      }
+      .preview-img {
+        max-width: 80px;
+        margin: 10px auto;
+        border-radius: 50%;
+        display: block;
+      }
+      footer {
+        background: #002244;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9rem;
+      }
+      .footer-links a {
+        color: #ccc;
+        margin: 0 10px;
+      }
+      .footer-links a:hover {
+        color: #fff;
+      }
+      @media (max-width: 480px) {
+        .register-container {
+          padding: 20px 15px;
+        }
+        h2 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <h2>Register</h2>
+      <p class="motivation">
+        Start planning your days better. Your dreams are just one list away!
+      </p>
+
+      <form
+        action="/register"
+        method="POST"
+        enctype="multipart/form-data"
+        onsubmit="return validatePassword()"
+      >
+        <input
+          type="text"
+          name="first_name"
+          placeholder="First Name"
+          required
+          aria-label="First Name"
+        />
+        <input
+          type="text"
+          name="surname"
+          placeholder="Surname"
+          required
+          aria-label="Surname"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          required
+          aria-label="Email"
+        />
+
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Password"
+          required
+          aria-label="Password"
+          autocomplete="new-password"
+          oninput="checkPasswordStrength()"
+          aria-describedby="password-rules"
+        />
+        <div class="password-hint" id="password-rules">
+          <p id="length">❌ At least 8 characters</p>
+          <p id="uppercase">❌ At least 1 uppercase letter</p>
+          <p id="lowercase">❌ At least 1 lowercase letter</p>
+          <p id="number">❌ At least 1 number</p>
+          <p id="special">❌ At least 1 special character (@$!%*?&)</p>
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+
+      <p style="margin-top: 10px">
+        Already have an account? <a href="/login">Login</a>
+      </p>
+      <button class="back-btn" onclick="window.location.href='/'">
+        Back to Home
+      </button>
+      <button class="toggle-btn" onclick="toggleDarkMode()">Toggle Mode</button>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 FSolution.-Dev | Forget Nukeri. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#" id="contactLink">Contact</a>
+      </div>
+    </footer>
+
+    <script>
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+      }
+
+      function previewProfile(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = document.getElementById("profilePreview");
+            img.src = e.target.result;
+            img.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function checkPasswordStrength() {
+        const password = document.getElementById("password").value;
+
+        const update = (id, valid, msg) => {
+          const el = document.getElementById(id);
+          el.innerHTML = `${valid ? "✅" : "❌"} ${msg}`;
+          el.style.color = valid ? "green" : "red";
+        };
+
+        update("length", password.length >= 8, "At least 8 characters");
+        update(
+          "uppercase",
+          /[A-Z]/.test(password),
+          "At least 1 uppercase letter"
+        );
+        update(
+          "lowercase",
+          /[a-z]/.test(password),
+          "At least 1 lowercase letter"
+        );
+        update("number", /\d/.test(password), "At least 1 number");
+        update(
+          "special",
+          /[@$!%*?&]/.test(password),
+          "At least 1 special character (@$!%*?&)"
+        );
+      }
+
+      function validatePassword() {
+        const password = document.getElementById("password").value;
+        return (
+          password.length >= 8 &&
+          /[A-Z]/.test(password) &&
+          /[a-z]/.test(password) &&
+          /\d/.test(password) &&
+          /[@$!%*?&]/.test(password)
+        );
+      }
+    </script>
+  </body>
+</html>

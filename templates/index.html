@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/static/images/todo-icon.png" />
+    <title>Welcome to To-Do List Calendar</title>
+
+    <!-- Link to external CSS for styling -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+
+    <!-- Google Fonts and Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f7f9fc;
+        color: #333;
+      }
+
+      header {
+        background: #003366;
+        color: white;
+        padding: 20px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .logo h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .logo img {
+        width: 35px;
+        height: 35px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+      }
+
+      .btn {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: background 0.3s, transform 0.2s;
+      }
+
+      .btn:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+      }
+
+      .hero-section {
+        text-align: center;
+        padding: 60px 20px;
+        background: #e9f2fb;
+        margin-top: 30px;
+      }
+
+      .hero-section h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .hero-section p {
+        font-size: 1.1rem;
+        color: #555;
+      }
+
+      .cta-buttons a {
+        margin-top: 20px;
+        padding: 12px 25px;
+      }
+
+      .testimonial-section {
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+
+      .testimonial-section h3 {
+        margin-bottom: 15px;
+        font-size: 24px;
+        color: #333;
+        text-align: center; /* Ensures the heading is centered */
+      }
+
+      .testimonials-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        padding-bottom: 10px;
+        scroll-snap-type: x mandatory;
+        ustify-content: center; /* Ensures the testimonials are centered */
+      }
+
+      .testimonial-card {
+        flex: 0 0 auto;
+        width: 250px;
+        min-height: 120px;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        scroll-snap-align: start;
+      }
+
+      .testimonial-card p {
+        margin: 8px 0;
+        color: #555;
+      }
+
+      /* Optional: Hide scrollbar for better look */
+      .testimonials-scroll::-webkit-scrollbar {
+        display: none;
+      }
+
+      .testimonials-scroll {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .contact-section {
+        background: #003366;
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+
+      .contact-section h3 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .contact-section p {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+      }
+
+      .contact-section a {
+        color: #fff;
+        text-decoration: underline;
+      }
+
+      footer {
+        background: #002244;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9rem;
+      }
+
+      .footer-links a {
+        color: #ccc;
+        margin: 0 10px;
+        text-decoration: none;
+      }
+
+      .footer-links a:hover {
+        color: #fff;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 500px;
+      }
+
+      .close-btn {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+      }
+
+      form input,
+      form textarea {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+
+      form button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      form button:hover {
+        background-color: #0056b3;
+      }
+
+      @media (max-width: 768px) {
+        .hero-section h2 {
+          font-size: 2rem;
+        }
+
+        .hero-section p {
+          font-size: 1rem;
+        }
+      }
+      /* Modal Styling */
+      .terms-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow: auto;
+      }
+
+      .terms-modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 600px;
+        max-height: 80%;
+        overflow-y: auto;
+      }
+
+      .close-btn {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+      }
+
+      .terms-modal h3 {
+        margin-top: 0;
+      }
+
+      .terms-modal p {
+        line-height: 1.6;
+      }
+
+      .terms-modal a {
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      /* Privacy Modal Styling */
+      .privacy-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(
+          0,
+          0,
+          0,
+          0.5
+        ); /* Same background as Terms modal */
+        overflow: auto;
+      }
+
+      /* Modal Box */
+      .privacy-modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 600px;
+        max-height: 80%;
+        overflow-y: auto;
+      }
+
+      /* Title & Links Styling */
+      .privacy-section h3 {
+        color: #007bff; /* Matching header color */
+        margin-top: 0;
+      }
+
+      .privacy-section a {
+        color: #007bff; /* Matching link color */
+        text-decoration: none;
+      }
+
+      .privacy-section a:hover {
+        text-decoration: underline;
+      }
+
+      /* Close Button Styling */
+      .privacy-modal .close-btn {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        color: #ccc;
+        cursor: pointer;
+      }
+
+      .privacy-modal .close-btn:hover {
+        color: #fff;
+      }
+
+      /* Modal Text Styling */
+      .privacy-section p {
+        line-height: 1.6;
+        color: #333;
+      }
+
+      /* Privacy Modal Header */
+      .privacy-modal h3 {
+        margin-top: 0;
+      }
+
+      .privacy-modal p {
+        line-height: 1.6;
+      }
+
+      .privacy-modal a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      @media (max-width: 768px) {
+        .container {
+          justify-content: center;
+        }
+        .box {
+          flex: 1 1 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header Section -->
+    <header>
+      <div class="navbar">
+        <div class="logo">
+          <img src="/static/images/todo-icon.png" alt="Logo" />
+          <h1>To-Do List Calendar</h1>
+        </div>
+        <div class="nav-links">
+          <a href="/login" class="btn">Login</a>
+          <a href="/register" class="btn">Sign Up</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h2>Organize Your Life, One Task at a Time!</h2>
+        <p>
+          Join over <strong>{{ total_users }}</strong> people who are using our
+          To-Do List Calendar to stay on top of their tasks and never miss a
+          deadline.
+        </p>
+        <div class="cta-buttons">
+          <a href="/login" class="btn primary-btn">Get Started</a>
+          <a href="/register" class="btn secondary-btn">Sign Up Now</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="testimonial-section">
+      <h3>What Our Users Say</h3>
+      <div class="testimonials-scroll">
+        {% for testimonial in testimonials %}
+        <div class="testimonial-card">
+          <p>
+            <strong
+              >{{ testimonial.first_name }} {{ testimonial.surname }}:</strong
+            >
+          </p>
+          <p>{{ testimonial.message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    <!-- Contact Section -->
+    <div class="contact-section">
+      <h3>Get In Touch</h3>
+      <p>
+        I'm always open to discussing new projects, job opportunities, or
+        collaborations.
+      </p>
+      <p>
+        Email:
+        <a href="mailto:forgetnukeri585@gmail.com">forgetnukeri585@gmail.com</a>
+      </p>
+      <p>Phone: <a href="tel:+27672852630">076 285 2630</a></p>
+      <p>
+        GitHub:
+        <a href="https://github.com/09JESUS" target="_blank"
+          >github.com/09JESUS</a
+        >
+      </p>
+      <p>
+        LinkedIn:
+        <a href="https://www.linkedin.com/in/forget-nukeri/" target="_blank"
+          >linkedin.com/in/forget-nukeri</a
+        >
+      </p>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+      <div class="footer-content">
+        <p>&copy; 2025 FSolution.-Dev | Forget Nukeri. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#" id="privacyLink">Privacy Policy</a>
+
+          <a href="#" id="termsLink">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+    <!-- Terms Modal -->
+    <div class="terms-modal" id="termsModal">
+      <div class="terms-modal-content">
+        <span class="close-btn">&times;</span>
+        <h3>Terms of Service</h3>
+        <p>
+          Welcome to our To-Do List Calendar. By using our service, you agree to
+          the following terms and conditions:
+        </p>
+        <p>
+          1. You agree to use the service only for lawful purposes. <br />
+          2. You are responsible for the tasks and data you enter into the
+          system. <br />
+          3. We do not guarantee the accuracy of the tasks' scheduling and
+          reminders. <br />
+          4. We reserve the right to suspend or terminate accounts that violate
+          our terms. <br />
+          5. Privacy and security of your data are important to us, and we
+          follow strict data protection policies.
+        </p>
+        <p>
+          For more information, please read our
+          <a href="#" id="privacyLink">Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+    <!-- Privacy Modal -->
+    <div class="privacy-modal" id="privacyModal">
+      <div class="privacy-modal-content">
+        <span class="close-btn" id="closePrivacyBtn">&times;</span>
+        <h3>Privacy Policy</h3>
+        <p>
+          Your privacy is important to us. We are committed to protecting your
+          personal information and using it only in accordance with this policy.
+        </p>
+        <p>
+          We collect information to provide better services to all our users.
+          This may include your name, email address, and any information you
+          submit through our forms.
+        </p>
+        <p>
+          We do not share or sell your personal data with third parties. All
+          information is stored securely and only used to improve our platform
+          and services.
+        </p>
+        <p>
+          For questions about your privacy or to request data deletion, contact
+          us at:
+          <a href="mailto:forgetnukeri585@gmail.com"
+            >forgetnukeri585@gmail.com</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Include External JS -->
+    <script src="/static/js/app.js"></script>
+    <script>
+      // Open Terms Modal
+      document.getElementById("termsLink").onclick = function (e) {
+        e.preventDefault();
+        document.getElementById("termsModal").style.display = "block";
+      };
+
+      // Close Terms Modal
+      document.querySelector("#termsModal .close-btn").onclick = function () {
+        document.getElementById("termsModal").style.display = "none";
+      };
+
+      // PRIVACY MODAL
+      document.getElementById("privacyLink").onclick = function (e) {
+        e.preventDefault(); // Prevent default anchor behavior
+        document.getElementById("privacyModal").style.display = "block"; // Show the privacy modal
+      };
+
+      // Close Privacy Modal when clicking the close button
+      document.getElementById("closePrivacyBtn").onclick = function () {
+        document.getElementById("privacyModal").style.display = "none"; // Hide the privacy modal
+      };
+
+      // Open Contact Modal
+      document.getElementById("contactLink").onclick = function () {
+        document.getElementById("contactModal").style.display = "block";
+      };
+
+      // Close Contact Modal
+      document.querySelector("#contactModal .close-btn").onclick = function () {
+        document.getElementById("contactModal").style.display = "none";
+      };
+
+      // UNIVERSAL MODAL CLICK-OUTSIDE CLOSE
+      window.onclick = function (event) {
+        const modals = ["termsModal", "contactModal", "privacyModal"];
+        modals.forEach((id) => {
+          const modal = document.getElementById(id);
+          if (event.target === modal) {
+            modal.style.display = "none";
+          }
+        });
+      };
+      // Close Privacy Modal when clicking outside of it
+      window.onclick = function (event) {
+        const modal = document.getElementById("privacyModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+      // CONTACT FORM SUBMIT
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            subject: document.getElementById("subject").value,
+            message: document.getElementById("message").value,
+          };
+
+          const response = await fetch("/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+          alert(result.message);
+          if (response.status === 200)
+            document.getElementById("contactForm").reset();
+        });
+    </script>
+  </body>
+</html>
